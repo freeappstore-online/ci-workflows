@@ -35,6 +35,16 @@ on:
         required: false
         type: string
         default: "22"
+      python_version:
+        description: "Optional Python version for apps whose build requires Python tooling"
+        required: false
+        type: string
+        default: ""
+      python_requirements:
+        description: "Optional requirements file to install before the build"
+        required: false
+        type: string
+        default: ""
 
 jobs:
   compliance:
@@ -50,6 +60,15 @@ jobs:
         with:
           node-version: ${{ inputs.node_version }}
           cache: pnpm
+
+      - uses: actions/setup-python@v5
+        if: inputs.python_version != ''
+        with:
+          python-version: ${{ inputs.python_version }}
+
+      - name: Install Python requirements
+        if: inputs.python_requirements != ''
+        run: python -m pip install -r "${{ inputs.python_requirements }}"
 
       - name: Install
         run: pnpm install --frozen-lockfile
